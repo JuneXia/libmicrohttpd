@@ -663,14 +663,14 @@ static void expire_sessions ()
 	printf("expire_sessions call, now = %ld\n", now);
 	prev = NULL;
 	pos = sessions;
-	printf("expire_sessions call, pos = %p\n", p);
+	printf("expire_sessions call, pos = %p\n", pos);
 	while (NULL != pos)
 	{
 		printf("expire_sessions call, in while()\n");
 		next = pos->next;
 		if (now - pos->start > 60 * 60)
 		{
-			printf("expire_sessions call, now - pos->start = %d > 60*60, we will free current session:%p\n", now - pos->start, pos);
+			printf("expire_sessions call, now - pos->start = %ld > 60*60, we will free current session:%p\n", now - pos->start, pos);
 			/* expire sessions after 1h */
 			if (NULL == prev)
 				sessions = pos->next;
@@ -680,7 +680,7 @@ static void expire_sessions ()
 		}
 		else
 		{
-			printf("expire_sessions call, now - pos->start = %d <= 60*60, we will check next session\n", now - pos->start);
+			printf("expire_sessions call, now - pos->start = %ld <= 60*60, we will check next session\n", now - pos->start);
 			prev = pos;
 		}
 		pos = next;
@@ -732,19 +732,30 @@ int main (int argc, char *const *argv)
 		FD_ZERO (&ws);
 		FD_ZERO (&es);
 		if (MHD_YES != MHD_get_fdset (d, &rs, &ws, &es, &max))
-			break; /* fatal internal error */
-		if (MHD_get_timeout (d, &mhd_timeout) == MHD_YES)	
 		{
+			printf("MHD_get_fdset return != MHD_YES, we will break out while(1)\n");
+			break; /* fatal internal error */
+		}
+		if (MHD_get_timeout (d, &mhd_timeout) == MHD_YES)
+		{
+			printf("MHD_get_timeout return = MHD_YES\n");
 			tv.tv_sec = mhd_timeout / 1000;
 			tv.tv_usec = (mhd_timeout - (tv.tv_sec * 1000)) * 1000;
+			printf("tv.tv_sec = %ld\n", tv.tv_sec);
+			printf("tv.tv_usec = %ld\n", tv.tv_usec);
 			tvp = &tv;	  
 		}
 		else
+		{
+			printf("MHD_get_timeout return != MHD_YES, we will set tvp = NULL\n");
 			tvp = NULL;
+		}
+		printf("we will invoke select\n");
 		select (max + 1, &rs, &ws, &es, tvp);
+		printf("we will invoke MHD_run\n");
 		MHD_run (d);
 	}
+	printf("we will invoke MHD_stop_daemon\n");
 	MHD_stop_daemon (d);
 	return 0;
 }
-
