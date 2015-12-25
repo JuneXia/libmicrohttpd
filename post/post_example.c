@@ -143,29 +143,42 @@ static struct Session *sessions;
  * Return the session handle for this connection, or 
  * create one if this is a new user.
  */
-	static struct Session *
-get_session (struct MHD_Connection *connection)
+static struct Session *get_session (struct MHD_Connection *connection)
 {
+	printf(">>> get_session call!\n");
 	struct Session *ret;
 	const char *cookie;
 
 	cookie = MHD_lookup_connection_value (connection,
 			MHD_COOKIE_KIND,
 			COOKIE_NAME);
+	printf("get_session call, MHD_lookup_connection_value return cookie = %s\n", cookie);
 	if (cookie != NULL)
 	{
+		printf("get_session call, cookie != NULL\n");
 		/* find existing session */
 		ret = sessions;
 		while (NULL != ret)
 		{
+			printf("get_session call, in while(NULL != ret)\n");
 			if (0 == strcmp (cookie, ret->sid))
+			{
+				printf("get_session call, because cookie(%s) == ret->sid(%s), we will break out from while(NULL != ret)\n", cookie, ret->sid);
 				break;
+			}
+			printf("get_session call, because cookie(%s) != ret->sid(%s), we will set: ret = ret->next\n", cookie, ret->sid);
 			ret = ret->next;
 		}
+		printf("get_session call, already break our from while(NULL != ret)\n");
 		if (NULL != ret)
 		{
+			printf("get_session call, because NULL != ret, we will set: ret->rc++, then return ret\n");
 			ret->rc++;
 			return ret;
+		}
+		else
+		{
+			printf("get_session call, because NULL == ret, we are nothing to do \n");
 		}
 	}
 	/* create fresh session */
@@ -184,10 +197,17 @@ get_session (struct MHD_Connection *connection)
 			(unsigned int) random (),
 			(unsigned int) random (),
 			(unsigned int) random ());
-	ret->rc++;  
+	printf("get_session call, ret->sid = %s\n", ret->sid);
+	printf("get_session call, we will set: ret->rc++\n");
+	ret->rc++;
+	printf("get_session call, we will set: ret->start = time(NULL)\n");
 	ret->start = time (NULL);
+	printf("get_session call, we will set: ret->next = sessions\n");
 	ret->next = sessions;
+	printf("get_session call, we will set: sessions = ret\n");
 	sessions = ret;
+	printf("get_session call, we will return ret(%p)\n", ret);
+	
 	return ret;
 }
 
@@ -240,24 +260,19 @@ struct Page
  * @param session session to use
  * @param response response to modify
  */ 
-	static void
-add_session_cookie (struct Session *session,
-		struct MHD_Response *response)
+static void add_session_cookie (struct Session *session, struct MHD_Response *response)
 {
+	printf(">>> add_session_cookie call\n");
 	char cstr[256];
-	snprintf (cstr,
-			sizeof (cstr),
-			"%s=%s",
-			COOKIE_NAME,
-			session->sid);
-	if (MHD_NO == 
-			MHD_add_response_header (response,
-				MHD_HTTP_HEADER_SET_COOKIE,
-				cstr))
+	snprintf (cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid);
+	printf("add_session_cookie call, cstr = %s\n", cstr);
+	printf("add_session_cookie call, we will invoke MHD_add_response_header\n");
+	if (MHD_NO == MHD_add_response_header (response, MHD_HTTP_HEADER_SET_COOKIE, cstr))
 	{
-		fprintf (stderr, 
-				"Failed to set session cookie header!\n");
+		printf("add_session_cookie call, MHD_add_response_header return value == MHD_NO, it's error\n");
+		fprintf (stderr, "Failed to set session cookie header!\n");
 	}
+	printf("add_session_cookie call, we will return\n");
 }
 
 
@@ -270,12 +285,12 @@ add_session_cookie (struct Session *session,
  * @param session session handle 
  * @param connection connection to use
  */
-	static int
-serve_simple_form (const void *cls,
+static int serve_simple_form (const void *cls,
 		const char *mime,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
+	printf(">>> serve_simple_form call\n");
 	int ret;
 	const char *form = cls;
 	struct MHD_Response *response;
@@ -304,12 +319,12 @@ serve_simple_form (const void *cls,
  * @param session session handle 
  * @param connection connection to use
  */
-	static int
-fill_v1_form (const void *cls,
+static int fill_v1_form (const void *cls,
 		const char *mime,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
+	printf(">>> fill_v1_form call\n");
 	int ret;
 	const char *form = cls;
 	char *reply;
@@ -344,12 +359,12 @@ fill_v1_form (const void *cls,
  * @param session session handle 
  * @param connection connection to use
  */
-	static int
-fill_v1_v2_form (const void *cls,
+static int fill_v1_v2_form (const void *cls,
 		const char *mime,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
+	printf(">>> fill_v1_v2_form call\n");
 	int ret;
 	const char *form = cls;
 	char *reply;
@@ -384,12 +399,12 @@ fill_v1_v2_form (const void *cls,
  * @param session session handle 
  * @param connection connection to use
  */
-	static int
-not_found_page (const void *cls,
+static int not_found_page (const void *cls,
 		const char *mime,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
+	printf(">>> not_found_page call\n");
 	int ret;
 	struct MHD_Response *response;
 
@@ -441,8 +456,7 @@ static struct Page pages[] =
  * @return MHD_YES to continue iterating,
  *         MHD_NO to abort the iteration
  */
-	static int
-post_iterator (void *cls,
+static int post_iterator (void *cls,
 		enum MHD_ValueKind kind,
 		const char *key,
 		const char *filename,
@@ -450,6 +464,7 @@ post_iterator (void *cls,
 		const char *transfer_encoding,
 		const char *data, uint64_t off, size_t size)
 {
+	printf(">>> post_iterator call\n");
 	struct Request *request = cls;
 	struct Session *session = request->session;
 
@@ -522,8 +537,7 @@ post_iterator (void *cls,
  *         MHS_NO if the socket must be closed due to a serios
  *         error while handling the request
  */
-	static int
-create_response (void *cls,
+static int create_response (void *cls,
 		struct MHD_Connection *connection,
 		const char *url,
 		const char *method,
@@ -532,6 +546,7 @@ create_response (void *cls,
 		size_t *upload_data_size,
 		void **ptr)
 {
+	printf(">>> create_response call\n");
 	struct MHD_Response *response;
 	struct Request *request;
 	struct Session *session;
@@ -629,12 +644,12 @@ create_response (void *cls,
  * @param con_cls session handle
  * @param toe status code
  */
-	static void
-request_completed_callback (void *cls,
+static void request_completed_callback (void *cls,
 		struct MHD_Connection *connection,
 		void **con_cls,
 		enum MHD_RequestTerminationCode toe)
 {
+	printf(">>> request_completed_callback call\n");
 	struct Request *request = *con_cls;
 
 	if (NULL == request)
