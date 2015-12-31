@@ -145,7 +145,7 @@ static struct Session *sessions;
  */
 static struct Session *get_session (struct MHD_Connection *connection)
 {
-	printf(">>> get_session call!\n");
+	printf("\n\n\n>>> get_session call!\n");
 	struct Session *ret;
 	const char *cookie;
 
@@ -262,7 +262,7 @@ struct Page
  */ 
 static void add_session_cookie (struct Session *session, struct MHD_Response *response)
 {
-	printf(">>> add_session_cookie call\n");
+	printf("\n\n\n>>> add_session_cookie call\n");
 	char cstr[256];
 	snprintf (cstr, sizeof (cstr), "%s=%s", COOKIE_NAME, session->sid);
 	printf("add_session_cookie call, cstr = %s\n", cstr);
@@ -290,23 +290,30 @@ static int serve_simple_form (const void *cls,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
-	printf(">>> serve_simple_form call\n");
+	printf("\n\n\n>>> serve_simple_form call\n");
 	int ret;
 	const char *form = cls;
 	struct MHD_Response *response;
+	printf("serve_simple_form call, form = %s, mime = %s, session = %p, connection = %p\n", form, mime, session, connection);
 
 	/* return static form */
+	printf("serve_simple_form call, we will invoke MHD_create_response_from_buffer\n");
 	response = MHD_create_response_from_buffer (strlen (form),
 			(void *) form,
 			MHD_RESPMEM_PERSISTENT);
+	printf("serve_simple_form call, we will invoke add_session_cookie\n");
 	add_session_cookie (session, response);
+	printf("serve_simple_form call, we will invoke MHD_add_response_header\n");
 	MHD_add_response_header (response,
 			MHD_HTTP_HEADER_CONTENT_ENCODING,
 			mime);
+	printf("serve_simple_form call, we will invoke MHD_queue_response\n");
 	ret = MHD_queue_response (connection, 
 			MHD_HTTP_OK, 
 			response);
+	printf("serve_simple_form call, we will invoke MHD_destroy_response\n");
 	MHD_destroy_response (response);
+	printf("serve_simple_form call, we will ret(%d)\n", ret);
 	return ret;
 }
 
@@ -324,29 +331,37 @@ static int fill_v1_form (const void *cls,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
-	printf(">>> fill_v1_form call\n");
+	printf("\n\n\n>>> fill_v1_form call\n");
 	int ret;
 	const char *form = cls;
 	char *reply;
 	struct MHD_Response *response;
+	printf("fill_v1_form call, form = %s, mime = %s, session = %p, connection = %p\n", form, mime, session, connection);
 
 	reply = malloc (strlen (form) + strlen (session->value_1) + 1);
 	snprintf (reply,
 			strlen (form) + strlen (session->value_1) + 1,
 			form,
 			session->value_1);
+	printf("fill_v1_form call, reply = %s\n", reply);
 	/* return static form */
+	printf("fill_v1_form call, we will invoke MHD_create_response_from_buffer\n");
 	response = MHD_create_response_from_buffer (strlen (reply),
 			(void *) reply,
 			MHD_RESPMEM_MUST_FREE);
+	printf("fill_v1_form call, we will invoke add_session_cookie\n");
 	add_session_cookie (session, response);
+	printf("fill_v1_form call, we will invoke MHD_add_response_header\n");
 	MHD_add_response_header (response,
 			MHD_HTTP_HEADER_CONTENT_ENCODING,
 			mime);
+	printf("fill_v1_form call, we will invoke MHD_queue_response\n");
 	ret = MHD_queue_response (connection, 
 			MHD_HTTP_OK, 
 			response);
+	printf("fill_v1_form call, we will invoke MHD_destroy_response\n");
 	MHD_destroy_response (response);
+	printf("fill_v1_form call, we will return ret(%d)\n", ret);
 	return ret;
 }
 
@@ -364,29 +379,37 @@ static int fill_v1_v2_form (const void *cls,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
-	printf(">>> fill_v1_v2_form call\n");
+	printf("\n\n\n>>> fill_v1_v2_form call\n");
 	int ret;
 	const char *form = cls;
 	char *reply;
 	struct MHD_Response *response;
+	printf("fill_v1_v2_form call, form = %s, mime = %s, session = %p, connection = %p\n", form, mime, session, connection);
 
 	reply = malloc (strlen (form) + strlen (session->value_1) + strlen (session->value_2) + 1);
 	snprintf (reply,
 			strlen (form) + strlen (session->value_1) + strlen (session->value_2) + 1,
 			form,
 			session->value_1);
+	printf("fill_v1_v2_form call, reply = %s\n", reply);
 	/* return static form */
+	printf("fill_v1_v2_form call, we will invoke MHD_create_response_from_buffer\n");
 	response = MHD_create_response_from_buffer (strlen (reply),
 			(void *) reply,
 			MHD_RESPMEM_MUST_FREE);
+	printf("fill_v1_v2_form call, we will invoke add_session_cookie\n");
 	add_session_cookie (session, response);
+	printf("fill_v1_v2_form call, we will invoke MHD_add_response_header\n");
 	MHD_add_response_header (response,
 			MHD_HTTP_HEADER_CONTENT_ENCODING,
 			mime);
+	printf("fill_v1_v2_form call, we will invoke MHD_queue_response\n");
 	ret = MHD_queue_response (connection, 
 			MHD_HTTP_OK, 
 			response);
+	printf("fill_v1_v2_form call, we will invoke MHD_destroy_response\n");
 	MHD_destroy_response (response);
+	printf("fill_v1_v2_form call, we will return ret(%d)\n", ret);
 	return ret;
 }
 
@@ -404,21 +427,27 @@ static int not_found_page (const void *cls,
 		struct Session *session,
 		struct MHD_Connection *connection)
 {
-	printf(">>> not_found_page call\n");
+	printf("\n\n\n>>> not_found_page call\n");
 	int ret;
 	struct MHD_Response *response;
+	printf("not_found_page call, (char *)cls = %s, mime = %s, session = %p, connection = %p\n", (char *)cls, mime, session, connection);
 
 	/* unsupported HTTP method */
+	printf("not_found_page call, we will invoke MHD_create_response_from_buffer\n");
 	response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR),
 			(void *) NOT_FOUND_ERROR,
 			MHD_RESPMEM_PERSISTENT);
+	printf("not_found_page call, we will invoke MHD_queue_response\n");
 	ret = MHD_queue_response (connection, 
 			MHD_HTTP_NOT_FOUND, 
 			response);
+	printf("not_found_page call, we will invoke MHD_add_response_header\n");
 	MHD_add_response_header (response,
 			MHD_HTTP_HEADER_CONTENT_ENCODING,
 			mime);
+	printf("not_found_page call, we will invoke MHD_destroy_response\n");
 	MHD_destroy_response (response);
+	printf("not_found_page call, we will return ret(%d)\n", ret);
 	return ret;
 }
 
@@ -464,42 +493,62 @@ static int post_iterator (void *cls,
 		const char *transfer_encoding,
 		const char *data, uint64_t off, size_t size)
 {
-	printf(">>> post_iterator call\n");
+	printf("\n\n\n>>> post_iterator call\n");
 	struct Request *request = cls;
 	struct Session *session = request->session;
+	printf("post_iterator call, key = %s, filename = %s, content_type = %s, transfer_encoding = %s, data = %s, off = %llu, size = %ld\n", key, filename, content_type, transfer_encoding, data, off, size);
 
 	if (0 == strcmp ("DONE", key))
 	{
+		printf("post_iterator call, key = DONE, we will do something\n");
 		fprintf (stdout,
 				"Session `%s' submitted `%s', `%s'\n",
 				session->sid,
 				session->value_1,
 				session->value_2);
+		printf("post_iterator call, we will return MHD_YES(%d)", MHD_YES);
 		return MHD_YES;
 	}
+	else
+	{
+		printf("post_iterator call, key != DONE, we will not to do anything\n");
+	}
+
 	if (0 == strcmp ("v1", key))
 	{
+		printf("post_iterator call, key == v1, we will do something\n");
 		if (size + off > sizeof(session->value_1))
 			size = sizeof (session->value_1) - off;
-		memcpy (&session->value_1[off],
-				data,
-				size);
+		memcpy (&session->value_1[off], data, size);
+		printf("&session->value_1[off] = %s, off = %llu, data = %s, size = %ld", &session->value_1[off], off, data, size);
 		if (size + off < sizeof (session->value_1))
 			session->value_1[size+off] = '\0';
+		printf("post_iterator call, we will return MHD_YES(%d)\n", MHD_YES);
 		return MHD_YES;
 	}
+	else
+	{
+		printf("post_iterator call, key != v1, we will not to do anything\n");
+	}
+
 	if (0 == strcmp ("v2", key))
 	{
+		printf("post_iterator call, key == v2, we will do something\n");
 		if (size + off > sizeof(session->value_2))
 			size = sizeof (session->value_2) - off;
-		memcpy (&session->value_2[off],
-				data,
-				size);
+		memcpy (&session->value_2[off], data, size);
+		printf("&session->value_2[off] = %s, off = %llu, data = %s, size = %ld", &session->value_2[off], off, data, size);
 		if (size + off < sizeof (session->value_2))
 			session->value_2[size+off] = '\0';
+		printf("post_iterator call, we will return MHD_YES(%d)\n", MHD_YES);
 		return MHD_YES;
 	}
+	else
+	{
+		printf("post_iterator call, key != v2, we will not to do anything\n");
+	}
 	fprintf (stderr, "Unsupported form value `%s'\n", key);
+	printf("post_iterator call, we will return MHD_YES(%d)\n", MHD_YES);
 	return MHD_YES;
 }
 
@@ -546,7 +595,17 @@ static int create_response (void *cls,
 		size_t *upload_data_size,
 		void **ptr)
 {
-	printf(">>> create_response call\n");
+	printf("\n\n\n>>> create_response call\n");
+
+	printf("create_response call, cls = %p, (char *cls) = %s\n", cls, (char *)cls);
+        printf("create_response call, url = %s\n", url);
+        printf("create_response call, method = %s\n", method);
+        printf("create_response call, version = %s\n", version);
+        printf("create_response call, upload_data = %s\n", upload_data);
+        if (upload_data_size) printf("create_response call, *upload_data_size = %ld\n", *upload_data_size);
+        printf("create_response call, ptr = %p\n", ptr);
+
+
 	struct MHD_Response *response;
 	struct Request *request;
 	struct Session *session;
@@ -556,6 +615,7 @@ static int create_response (void *cls,
 	request = *ptr;
 	if (NULL == request)
 	{
+		printf("create_response call, request = NULL, we will do something\n");
 		request = calloc (1, sizeof (struct Request));
 		if (NULL == request)
 		{
@@ -563,33 +623,47 @@ static int create_response (void *cls,
 			return MHD_NO;
 		}
 		*ptr = request;
+		
+		printf("create_response call, MHD_HTTP_METHOD_POST = %s\n", MHD_HTTP_METHOD_POST);
 		if (0 == strcmp (method, MHD_HTTP_METHOD_POST))
 		{
-			request->pp = MHD_create_post_processor (connection, 1024,
-					&post_iterator, request);
+			printf("create_response call, <0 == strcmp (method, MHD_HTTP_METHOD_POST)> is true, we will invoke MHD_create_post_processor\n");
+			request->pp = MHD_create_post_processor (connection, 1024, &post_iterator, request);
 			if (NULL == request->pp)
 			{
-				fprintf (stderr, "Failed to setup post processor for `%s'\n",
-						url);
+				fprintf (stderr, "Failed to setup post processor for `%s'\n", url);
 				return MHD_NO; /* internal error */
 			}
 		}
+		printf("create_response call, we will return MHD_YES(%d)\n", MHD_YES);
 		return MHD_YES;
 	}
+	else
+	{
+		printf("create_response call, request != NULL, we will not to do anything\n");
+	}
+
 	if (NULL == request->session)
 	{
+		printf("create_response call, request->session == NULL, we will do something\n");
 		request->session = get_session (connection);
 		if (NULL == request->session)
 		{
-			fprintf (stderr, "Failed to setup session for `%s'\n",
-					url);
+			fprintf (stderr, "Failed to setup session for `%s'\n", url);
 			return MHD_NO; /* internal error */
 		}
 	}
+	else
+	{
+		printf("create_response call, request->session != NULL, we will not to do anything\n");
+	}
+
 	session = request->session;
 	session->start = time (NULL);
 	if (0 == strcmp (method, MHD_HTTP_METHOD_POST))
 	{      
+		printf("create_response call, <0 == strcmp (method, MHD_HTTP_METHOD_POST)> is true, we will do something\n");
+
 		/* evaluate POST data */
 		MHD_post_process (request->pp,
 				upload_data,
@@ -606,31 +680,46 @@ static int create_response (void *cls,
 		if (NULL != request->post_url)
 			url = request->post_url;
 	}
-
-	if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) ||
-			(0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) )
+	else
 	{
+		printf("create_response call, <0 == strcmp (method, MHD_HTTP_METHOD_POST)> is false, we will not to do anything\n");
+	}
+	
+	printf("create_response call, MHD_HTTP_METHOD_GET = %s, MHD_HTTP_METHOD_HEAD = %s\n", MHD_HTTP_METHOD_GET, MHD_HTTP_METHOD_HEAD);
+	if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) )
+	{
+		printf("create_response call, method(%s) == MHD_HTTP_METHOD_GET or method(%s) == MHD_HTTP_METHOD_HEAD, we will do something\n", method, method);
 		/* find out which page to serve */
 		i=0;
-		while ( (pages[i].url != NULL) &&
-				(0 != strcmp (pages[i].url, url)) )
+		while ( (pages[i].url != NULL) && (0 != strcmp (pages[i].url, url)) )
+		{
+			printf("create_response call, pages[%d].url = %s, url = %s, pages[%d].mime = %s\n", i, pages[i].url, url, i, pages[i].mime);
 			i++;
-		ret = pages[i].handler (pages[i].handler_cls, 
-				pages[i].mime,
-				session, connection);
+		}
+		printf("create_response call, pages[%d].url = %s, url = %s, pages[%d].mime = %s\n", i, pages[i].url, url, i, pages[i].mime);
+		printf("create_response call, we will invoke pages[%d].handler\n", i);
+		ret = pages[i].handler (pages[i].handler_cls, pages[i].mime, session, connection);
 		if (ret != MHD_YES)
-			fprintf (stderr, "Failed to create page for `%s'\n",
-					url);
+			fprintf (stderr, "Failed to create page for `%s'\n", url);
+		printf("create_response call, we will return ret(%d)\n", ret);
 		return ret;
 	}
+	else
+	{
+		printf("create_response call, <(0 == strcmp (method, MHD_HTTP_METHOD_GET)) || (0 == strcmp (method, MHD_HTTP_METHOD_HEAD))> is false, we will not to do anything\n");
+	}
+	printf("create_response call, will invoke MHD_create_from_buffer\n");
 	/* unsupported HTTP method */
 	response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),
 			(void *) METHOD_ERROR,
 			MHD_RESPMEM_PERSISTENT);
+	printf("create_response call, will invoke MHD_queue_response\n");
 	ret = MHD_queue_response (connection, 
 			MHD_HTTP_METHOD_NOT_ACCEPTABLE, 
 			response);
+	printf("create_response call, will invoke MHD_destroy_response\n");
 	MHD_destroy_response (response);
+	printf("create_response call, will return\n");
 	return ret;
 }
 
@@ -649,16 +738,28 @@ static void request_completed_callback (void *cls,
 		void **con_cls,
 		enum MHD_RequestTerminationCode toe)
 {
-	printf(">>> request_completed_callback call\n");
+	printf("\n\n\n>>> request_completed_callback call\n");
 	struct Request *request = *con_cls;
 
 	if (NULL == request)
+	{
+		printf("request_completed_callback call, because NULL == request, we will return\n");
 		return;
+	}
 	if (NULL != request->session)
+	{
+		printf("request_completed_callback call, because NULL != request->session, we will set request->session->rc--\n");
 		request->session->rc--;
+	}
 	if (NULL != request->pp)
+	{
+		printf("request_completed_callback call, because NULL != request->pp, we will MHD_destroy_post_processor\n");
 		MHD_destroy_post_processor (request->pp);
+	}
+	printf("request_completed_callback call, we will free(request)\n");
 	free (request);
+	printf("request_completed_callback call, we will return\n");
+	return;
 }
 
 
@@ -668,7 +769,7 @@ static void request_completed_callback (void *cls,
  */
 static void expire_sessions ()
 {
-	printf(">>> expire_sessions call!\n");
+	printf("\n\n\n>>> expire_sessions call!\n");
 	struct Session *pos;
 	struct Session *prev;
 	struct Session *next;
@@ -746,31 +847,35 @@ int main (int argc, char *const *argv)
 		FD_ZERO (&rs);
 		FD_ZERO (&ws);
 		FD_ZERO (&es);
+		printf("main call, 1 >>> max = %d\n", max);
 		if (MHD_YES != MHD_get_fdset (d, &rs, &ws, &es, &max))
 		{
-			printf("MHD_get_fdset return != MHD_YES, we will break out while(1)\n");
+			printf("main call, 2 >>> max = %d\n", max);
+			printf("main call, MHD_get_fdset return != MHD_YES, we will break out while(1)\n");
 			break; /* fatal internal error */
 		}
+		printf("main call, 1 >>> mhd_timeout = %llu\n", mhd_timeout);
 		if (MHD_get_timeout (d, &mhd_timeout) == MHD_YES)
 		{
-			printf("MHD_get_timeout return = MHD_YES\n");
+			printf("main call, 2 >>> mhd_timeout = %llu\n", mhd_timeout);
+			printf("main call, MHD_get_timeout return = MHD_YES\n");
 			tv.tv_sec = mhd_timeout / 1000;
 			tv.tv_usec = (mhd_timeout - (tv.tv_sec * 1000)) * 1000;
-			printf("tv.tv_sec = %ld\n", tv.tv_sec);
-			printf("tv.tv_usec = %ld\n", tv.tv_usec);
-			tvp = &tv;	  
+			printf("main call, tv.tv_sec = %ld\n", tv.tv_sec);
+			printf("main call, tv.tv_usec = %ld\n", tv.tv_usec);
+			tvp = &tv;
 		}
 		else
 		{
-			printf("MHD_get_timeout return != MHD_YES, we will set tvp = NULL\n");
+			printf("main call, MHD_get_timeout return != MHD_YES, we will set tvp = NULL\n");
 			tvp = NULL;
 		}
-		printf("we will invoke select\n");
+		printf("main call, we will invoke select\n");
 		select (max + 1, &rs, &ws, &es, tvp);
-		printf("we will invoke MHD_run\n");
+		printf("main call, we will invoke MHD_run\n");
 		MHD_run (d);
 	}
-	printf("we will invoke MHD_stop_daemon\n");
+	printf("main call, we will invoke MHD_stop_daemon\n");
 	MHD_stop_daemon (d);
 	return 0;
 }
